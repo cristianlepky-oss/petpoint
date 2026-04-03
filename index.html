@@ -250,4 +250,66 @@
         
         const filtered = state.products.filter(p => {
             const matchesSearch = p.brand.toLowerCase().includes(query) || p.name.toLowerCase().includes(query);
-            const matchesFilter = currentFilter === 'Todos' ||
+            const matchesFilter = currentFilter === 'Todos' || p.species === currentFilter;
+            return matchesSearch && matchesFilter;
+        });
+
+        grid.innerHTML = filtered.map(p => `
+            <div class="p-card" onclick="selectProduct(${p.id})">
+                <img src="${p.img}" class="p-img">
+                <div class="p-info">
+                    <span class="p-brand">${p.brand}</span>
+                    <h3 class="p-name">${p.name}</h3>
+                    <div class="p-price">$${p.price.toLocaleString('es-AR')}</div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function selectProduct(id) {
+        const p = state.products.find(x => x.id === id);
+        $('selectedName').innerText = p.name;
+        $('selectedDetail').innerText = p.brand + " | " + p.species;
+        $('selectedPrice').innerText = "$" + p.price.toLocaleString('es-AR');
+        
+        const msg = encodeURIComponent(`Hola PetPoint! Quiero encargar:\n- ${p.brand} ${p.name}\n- Precio: $${p.price.toLocaleString('es-AR')}\n\n¿Me confirman disponibilidad?`);
+        $('waLink').href = `https://wa.me/${state.config.whatsapp}?text=${msg}`;
+        
+        $('orderBar').style.display = 'block';
+    }
+
+    function setFilter(val, el) {
+        currentFilter = val;
+        document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+        el.classList.add('active');
+        render();
+    }
+
+    function filterProducts() { render(); }
+
+    function openAdmin() { $('adminPanel').style.display = 'block'; }
+    function closeAdmin() { $('adminPanel').style.display = 'none'; }
+    
+    function checkPass() {
+        if($('adminPass').value === '0007') {
+            $('adminContent').innerHTML = `
+                <h3>Configuración</h3>
+                <label>WhatsApp:</label><br>
+                <input type="text" value="${state.config.whatsapp}" onchange="state.config.whatsapp = this.value"><br><br>
+                <label>Texto Promo:</label><br>
+                <input type="text" value="${state.config.promo}" onchange="state.config.promo = this.value; document.getElementById('promo-text').innerText = this.value" style="width:100%"><br><br>
+                <p><i>Nota: Los cambios son temporales en esta demo. Se guardan en memoria.</i></p>
+            `;
+        } else {
+            alert('Clave incorrecta');
+        }
+    }
+
+    const $ = id => document.getElementById(id);
+
+    // Inicio
+    render();
+</script>
+
+</body>
+</html>
