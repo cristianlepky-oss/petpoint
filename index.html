@@ -1,1 +1,253 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>PETPOINT | Alimento para Mascotas</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #111827;
+            --accent: #f59e0b; /* Color miel/perro */
+            --success: #22c55e;
+            --bg: #f9fafb;
+            --card: #ffffff;
+            --text-main: #111827;
+            --text-muted: #6b7280;
+            --radius: 20px;
+            --shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+        }
 
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { 
+            margin: 0; 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background: var(--bg); 
+            color: var(--text-main);
+            line-height: 1.5;
+        }
+
+        .container { max-width: 500px; margin: 0 auto; padding-bottom: 100px; }
+
+        /* PORTADA CON EL GOLDEN */
+        .hero {
+            position: relative;
+            height: 40vh;
+            min-height: 300px;
+            background: url('https://images.unsplash.com/photo-1552053831-71594a27632d?auto=format&fit=crop&q=80&w=1000') center/cover no-repeat;
+            display: flex;
+            align-items: flex-end;
+            border-bottom-left-radius: 40px;
+            border-bottom-right-radius: 40px;
+            overflow: hidden;
+        }
+
+        .hero::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(0deg, rgba(0,0,0,0.8) 0%, transparent 60%);
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            padding: 30px;
+            color: white;
+            width: 100%;
+        }
+
+        .hero h1 { font-size: 32px; margin: 0; font-weight: 800; letter-spacing: -1px; }
+        .hero p { opacity: 0.9; margin: 5px 0 0; font-size: 14px; }
+
+        /* BUSCADOR Y FILTROS */
+        .search-box {
+            padding: 20px;
+            margin-top: -30px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .search-input {
+            width: 100%;
+            height: 60px;
+            background: var(--card);
+            border: none;
+            border-radius: var(--radius);
+            padding: 0 25px;
+            font-size: 16px;
+            box-shadow: var(--shadow);
+            outline: none;
+        }
+
+        .filter-scroll {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding: 10px 20px;
+            scrollbar-width: none;
+        }
+        .filter-scroll::-webkit-scrollbar { display: none; }
+
+        .chip {
+            padding: 8px 20px;
+            background: var(--card);
+            border-radius: 99px;
+            white-space: nowrap;
+            font-size: 14px;
+            font-weight: 600;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+        .chip.active { background: var(--primary); color: white; }
+
+        /* LISTA DE PRODUCTOS */
+        .product-grid { padding: 20px; display: grid; gap: 20px; }
+
+        .p-card {
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 15px;
+            display: flex;
+            gap: 15px;
+            box-shadow: var(--shadow);
+            transition: transform 0.2s;
+        }
+
+        .p-card:active { transform: scale(0.98); }
+
+        .p-img {
+            width: 100px;
+            height: 100px;
+            border-radius: 15px;
+            background: #f3f4f6;
+            object-fit: cover;
+        }
+
+        .p-info { flex: 1; }
+        .p-brand { font-size: 12px; color: var(--accent); font-weight: 800; text-transform: uppercase; }
+        .p-name { font-size: 17px; font-weight: 700; margin: 2px 0; color: var(--primary); }
+        .p-price { font-size: 20px; font-weight: 800; margin-top: 5px; }
+
+        /* FOOTER DE PEDIDO (STIKY) */
+        .order-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--card);
+            padding: 20px;
+            border-top-left-radius: 30px;
+            border-top-right-radius: 30px;
+            box-shadow: 0 -10px 25px rgba(0,0,0,0.1);
+            z-index: 100;
+            display: none;
+        }
+
+        .btn-wa {
+            background: var(--success);
+            color: white;
+            width: 100%;
+            height: 55px;
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            font-weight: 800;
+            font-size: 16px;
+            gap: 10px;
+        }
+
+        /* PANEL ADMIN */
+        .admin-modal {
+            position: fixed;
+            inset: 0;
+            background: white;
+            z-index: 200;
+            padding: 30px;
+            display: none;
+            overflow-y: auto;
+        }
+
+        .hidden { display: none; }
+
+    </style>
+</head>
+<body>
+
+<div class="container" id="app">
+    <header class="hero">
+        <div class="hero-content">
+            <h1>PETPOINT</h1>
+            <p id="promo-text">Miércoles, viernes y sábado envío gratis en Necochea</p>
+        </div>
+        <button onclick="openAdmin()" style="position:absolute; top:20px; right:20px; background:rgba(255,255,255,0.2); border:none; border-radius:50%; width:40px; height:40px; color:white; cursor:pointer;">⚙️</button>
+    </header>
+
+    <div class="search-box">
+        <input type="text" id="searchInput" class="search-input" placeholder="¿Qué marca buscás hoy?" oninput="filterProducts()">
+    </div>
+
+    <div class="filter-scroll">
+        <div class="chip active" onclick="setFilter('Todos', this)">Todos</div>
+        <div class="chip" onclick="setFilter('Perros', this)">Perros 🐶</div>
+        <div class="chip" onclick="setFilter('Gatos', this)">Gatos 🐱</div>
+    </div>
+
+    <div class="product-grid" id="productGrid">
+        </div>
+
+    <div class="order-bar" id="orderBar">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px">
+            <div>
+                <span id="selectedName" style="font-weight:700; display:block">Producto</span>
+                <span id="selectedDetail" style="font-size:12px; color:var(--text-muted)">Presentación</span>
+            </div>
+            <div id="selectedPrice" style="font-size:22px; font-weight:800"></div>
+        </div>
+        <a href="#" id="waLink" class="btn-wa">
+            Pedir por WhatsApp
+        </a>
+    </div>
+</div>
+
+<div id="adminPanel" class="admin-modal">
+    <div style="display:flex; justify-content:space-between; align-items:center">
+        <h2>Panel Interno</h2>
+        <button onclick="closeAdmin()">Cerrar</button>
+    </div>
+    <hr>
+    <div id="adminContent">
+        <p>Ingresá la clave para editar:</p>
+        <input type="password" id="adminPass" placeholder="Clave">
+        <button onclick="checkPass()">Entrar</button>
+    </div>
+</div>
+
+<script>
+    // --- DATOS DE LA EMPRESA (Configurables) ---
+    let state = {
+        config: {
+            whatsapp: "5492262655225",
+            promo: "Miércoles, viernes y sábado envío gratis en Necochea",
+            roundTo: 100
+        },
+        products: [
+            { id: 1, species: "Perros", brand: "Old Prince", name: "Equilibrium Adulto", price: 64700, img: "https://images.unsplash.com/photo-1589924691995-ad0029ecbb68?auto=format&fit=crop&q=60&w=400" },
+            { id: 2, species: "Perros", brand: "Kongo", name: "Natural Adulto", price: 30200, img: "https://images.unsplash.com/photo-1583337130417-3346a1be7dee?auto=format&fit=crop&q=60&w=400" },
+            { id: 3, species: "Gatos", brand: "Royal Canin", name: "Kitten Gato", price: 37500, img: "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?auto=format&fit=crop&q=60&w=400" },
+            { id: 4, species: "Perros", brand: "Royal Canin", name: "Medium Adult", price: 155200, img: "https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?auto=format&fit=crop&q=60&w=400" }
+        ]
+    };
+
+    let currentFilter = 'Todos';
+
+    function render() {
+        const grid = $('productGrid');
+        const query = $('searchInput').value.toLowerCase();
+        
+        const filtered = state.products.filter(p => {
+            const matchesSearch = p.brand.toLowerCase().includes(query) || p.name.toLowerCase().includes(query);
+            const matchesFilter = currentFilter === 'Todos' ||
